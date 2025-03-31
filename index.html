@@ -4,23 +4,45 @@
     <meta charset="UTF-8">
     <title>Inventory Tracking App</title>
 
+    <!-- mobile viewport -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <!--- UIkit CSS framework, loaded from a CDN, see: https://getuikit.com/docs/installation -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.23.4/dist/css/uikit.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.23.4/dist/js/uikit.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.23.4/dist/js/uikit-icons.min.js"></script>
-
 </head>
 <body>
 
-<main class="uk-container">
-    <h1>Coming Soon!</h1>
+<main class="uk-container uk-height-viewport uk-flex uk-flex-column uk-flex-center uk-flex-middle">
+    <h1 class="uk-h2">Inventory Tracking</h1>
+    <div id="logged-in" hidden>
+        <p>You are logged in as user: <span id="username"></span></p>
 
-    <p>We're working on getting the tutorial online, hang in there.</p>
+        <div class="uk-flex uk-flex-row uk-flex-between">
+            <button id="check-in-items" class="uk-button uk-button-primary">
+                <span uk-icon="icon: arrow-left"></span> Check In
+            </button>
+            <button id="check-out-items" class="uk-button uk-button-primary uk-margin-left">
+                <span uk-icon="icon: arrow-right"></span> Check Out
+            </button>
+        </div>
 
-    <p>This site is deployed via Github pages, under the URL:
-        <a href="https://pixelverse-llc.github.io/inventory-tracking-app/">https://pixelverse-llc.github.io/inventory-tracking-app/</a>
-    </p>
+        <p><button id="log-out" class="uk-button uk-button-text">Log out</button></p>
+    </div>
+    <div id="logged-out" class="uk-flex uk-flex-column" hidden>
+        <p>Log in by scanning the QR Code on your badge.</p>
+
+        <img src="https://placehold.co/480x200" width="480" height="200" alt="Badge with QR Code">
+
+        <!-- scan button, enabled when STRICH SDK is initialized -->
+        <button id="scan-qr-button" disabled class="uk-margin-top uk-button uk-button-primary">
+            Scan QR Code
+        </button>
+    </div>
 </main>
+
+<script type="module" src="js/index.js"></script>
 
 </body>
 </html>
