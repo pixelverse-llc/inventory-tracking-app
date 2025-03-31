@@ -17,18 +17,20 @@
 <main class="uk-container uk-height-viewport uk-flex uk-flex-column uk-flex-center uk-flex-middle">
     <h1 class="uk-h2">Inventory Tracking</h1>
     <div id="logged-in" hidden>
-        <p>You are logged in as user: <span id="username"></span></p>
+        <p>
+            You are logged in as user: <span id="username"></span>.
+            <button id="log-out" class="uk-margin-left uk-button uk-button-link">Log out</button>
+        </p>
 
         <div class="uk-flex uk-flex-row uk-flex-between">
-            <button id="check-in-items" class="uk-button uk-button-primary">
+            <a class="uk-button uk-button-primary" href="inventory.html?mode=in">
                 <span uk-icon="icon: arrow-left"></span> Check In
-            </button>
-            <button id="check-out-items" class="uk-button uk-button-primary uk-margin-left">
-                <span uk-icon="icon: arrow-right"></span> Check Out
-            </button>
-        </div>
+            </a>
 
-        <p><button id="log-out" class="uk-button uk-button-text">Log out</button></p>
+            <a class="uk-button uk-button-primary" href="inventory.html?mode=out">
+                <span uk-icon="icon: arrow-right"></span> Check Out
+            </a>
+        </div>
     </div>
     <div id="logged-out" class="uk-flex uk-flex-column" hidden>
         <p>Log in by scanning the QR Code on your badge.</p>
