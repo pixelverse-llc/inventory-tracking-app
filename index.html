@@ -55,7 +55,12 @@
             try {
                 await initializeSDK();
                 scanQrButton.onclick = async () => {
-                    const qrCodes = await PopupScanner.scan({ symbologies: ['qr' ]});
+                    const qrCodes = await PopupScanner.scan({
+                        symbologies: ['qr' ],
+                        labels: {
+                            title: 'Scan Badge'
+                        }
+                    });
                     if (qrCodes) {
                         logIn(qrCodes[0].data);
                         await updateUI();
