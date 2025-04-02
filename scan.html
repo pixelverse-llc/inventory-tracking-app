@@ -35,22 +35,14 @@
         <!-- STRICH BarcodeReader will live here -->
     </div>
 
-    <!-- placeholder to display if no items were scanned yet -->
-    <div id="item-list-placeholder" class="uk-placeholder uk-text-center">
+    <!-- number of items scanned -->
+    <p id="items-scanned" class="uk-text-center">
         No items scanned yet
-    </div>
+    </p>
 
-    <div id="item-list" class="uk-margin-top" hidden>
-        <!-- populated dynamically with template below -->
-    </div>
-    <template id="item-template">
-        <div class="uk-grid-small" uk-grid>
-            <div class="item-barcode uk-width-expand" uk-leader></div>
-            <div class="item-count"></div>
-        </div>
-    </template>
-
-    <button id="finish-scanning" class="uk-button uk-button-primary uk-margin-top">Finish Scanning</button>
+    <button id="finish-scanning" class="uk-button uk-button-primary uk-margin-top">
+        Finish Scanning
+    </button>
 </main>
 
 <script type="module">
@@ -67,23 +59,13 @@
         } else {
             items.push({ barcode, count: 1 });
         }
-        updateTable();
-    }
 
-    function updateTable() {
-        const listElement = document.getElementById('item-list');
-        while (listElement.firstChild) {
-            listElement.removeChild(listElement.lastChild);
+        // update displayed item count
+        let totalCount = 0;
+        for (const item of items) {
+            totalCount += item.count;
         }
-
-        document.getElementById('item-list-placeholder').hidden = items.length > 0;
-        document.getElementById('item-list').hidden = items.length === 0;
-        for (let item of items) {
-            const itemElement = document.getElementById('item-template').content.cloneNode(true);
-            itemElement.querySelector('.item-barcode').innerHTML = item.barcode;
-            itemElement.querySelector('.item-count').innerHTML = `${item.count}x`;
-            listElement.appendChild(itemElement);
-        }
+        document.getElementById('items-scanned').innerHTML = `${totalCount} items scanned`;
     }
 
     // read mode (in/out) from query parameter
