@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Scan Items</title>
+
+    <!-- mobile viewport -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!--- UIkit CSS framework, loaded from a CDN, see: https://getuikit.com/docs/installation -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.23.4/dist/css/uikit.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.23.4/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.23.4/dist/js/uikit-icons.min.js"></script>
+
+    <style>
+        #barcode-reader-host {
+            position: relative;
+            height: 320px;
+        }
+    </style>
+</head>
+<body>
+
+<main class="uk-container uk-height-viewport uk-flex uk-flex-column uk-flex-center uk-width-large">
+    <div id="check-in" hidden>
+        <h1 class="uk-h2">Check In</h1>
+        <p>Return items by scanning their barcodes and placing them back on the shelf.</p>
+    </div>
+    <div id="check-out" class="uk-flex uk-flex-column" hidden>
+        <h1 class="uk-h2">Check Out</h1>
+        <p>Take items from the shelf and scan their barcode.</p>
+    </div>
+
+    <div id="barcode-reader-host">
+        <!-- STRICH BarcodeReader will live here -->
+    </div>
+
+    <!-- placeholder to display if no items were scanned yet -->
+    <div id="item-list-placeholder" class="uk-placeholder uk-text-center">
+        No items scanned yet
+    </div>
+
+    <div id="item-list" class="uk-margin-top" hidden>
+        <!-- populated dynamically with template below -->
+    </div>
+    <template id="item-template">
+        <div class="uk-grid-small" uk-grid>
+            <div class="item-barcode uk-width-expand" uk-leader></div>
+            <div class="item-count"></div>
+        </div>
+    </template>
+
+    <button id="finish-scanning" class="uk-button uk-button-primary uk-margin-top">Finish Scanning</button>
+</main>
+
+<script type="module">
+    import {initializeSDK, BarcodeReader} from './lib/scanning.js';
+    import {addItem, removeItem} from './lib/inventory.js';
+
+    // list of items to check in or out, objects have a 'barcode' and a 'count' field
+    let items = [];
+
+    function onItemScanned(barcode) {
+        let existing = items.find(item => item.barcode === barcode);
+        if (existing) {
+            existing.count++;
+        } else {
+            items.push({ barcode, count: 1 });
+        }
+        updateTable();
+    }
+
+    function updateTable() {
+        const listElement = document.getElementById('item-list');
+        while (listElement.firstChild) {
+            listElement.removeChild(listElement.lastChild);
+        }
+
+        document.getElementById('item-list-placeholder').hidden = items.length > 0;
+        document.getElementById('item-list').hidden = items.length === 0;
+        for (let item of items) {
+            const itemElement = document.getElementById('item-template').content.cloneNode(true);
+            itemElement.querySelector('.item-barcode').innerHTML = item.barcode;
+            itemElement.querySelector('.item-count').innerHTML = `${item.count}x`;
+            listElement.appendChild(itemElement);
+        }
+    }
+
+    // read mode (in/out) from query parameter
+    const queryParams = new URLSearchParams(window.location.search);
+    const mode = queryParams.get('mode') ?? 'in';
+    if (mode === 'in') {
+        document.getElementById('check-in').hidden = false;
+    } else { // out
+        document.getElementById('check-out').hidden = false;
+    }
+
+    // initialize SDK and enable button when ready
+    let barcodeReader = null;
+    try {
+        await initializeSDK();
+
+        // BarcodeReader configuration
+        const hostElement = document.getElementById('barcode-reader-host');
+        const config = {
+            selector: hostElement,
+            engine: {
+                symbologies: ['ean13', 'ean8', 'upca', 'upce', 'code128'],
+                duplicateInterval: 2500
+            }
+        };
+        barcodeReader = new BarcodeReader(config);
+
+        // set detection callback
+        barcodeReader.detected = (detections) => {
+            for (let detection of detections) {
+                onItemScanned(detection.data);
+            }
+        };
+
+        // acquire camera
+        await barcodeReader.initialize();
+
+        // start decoding
+        await barcodeReader.start();
+    } catch (err) {
+        // see: https://docs.strich.io/reference/classes/SdkError.html
+        alert(`Failed to initialize Barcode Scanning: ${err.message}`);
+    }
+
+    // finish scanning
+    document.getElementById('finish-scanning').onclick = async () => {
+
+        // stop and destroy BarcodeReader (releases camera)
+        await barcodeReader.destroy();
+
+        // add scanned items to inventory
+        for (const item of items) {
+            if (mode === 'in') {
+                // check in: remove item from local inventory
+                removeItem(item);
+            } else {
+                // check out: add item to local inventory
+                addItem(item);
+            }
+        }
+
+        // navigate back to inventory
+        document.location.href = 'inventory.html';
+    }
+</script>
+
+</body>
+</html>

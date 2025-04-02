@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Inventory Tracking App</title>
+    <title>My Items</title>
 
     <!-- mobile viewport -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,25 +15,12 @@
 <body>
 
 <main class="uk-container uk-height-viewport uk-flex uk-flex-column uk-flex-center uk-width-large">
-    <div id="check-in" hidden>
-        <h1 class="uk-h2">Check In</h1>
-        <p>Return items by scanning their barcodes and placing them back on the shelf.</p>
-    </div>
-    <div id="check-out" class="uk-flex uk-flex-column" hidden>
-        <h1 class="uk-h2">Check Out</h1>
-        <p>Take items from the shelf and scan their barcode.</p>
-    </div>
-
-    <button id="scan-items" class="uk-button uk-button-primary" disabled>
-        <span uk-icon="icon: camera"></span> Scan Items
-    </button>
+    <h1 class="uk-h2">My Items</h1>
 
     <!-- placeholder to display if no items were scanned yet -->
-    <div id="item-list-placeholder" class="uk-placeholder uk-text-center">
-        No items scanned yet
-    </div>
+    <p id="no-items-placeholder">There are no items in your inventory yet.</p>
 
-    <div id="item-list" class="uk-margin-top" hidden>
+    <div id="item-list" class="uk-margin-top uk-margin-bottom" hidden>
         <!-- populated dynamically with template below -->
     </div>
     <template id="item-template">
@@ -43,10 +30,34 @@
         </div>
     </template>
 
+    <div class="uk-flex uk-flex-row uk-flex-between">
+        <a class="uk-button uk-button-primary" href="scan.html?mode=in">
+            <span uk-icon="icon: arrow-left"></span> Check In
+        </a>
+
+        <a class="uk-button uk-button-primary" href="scan.html?mode=out">
+            <span uk-icon="icon: arrow-right"></span> Check Out
+        </a>
+    </div>
+
     <p><a href="index.html" class="uk-link">Go back</a></p>
 </main>
 
-<script type="module" src="js/inventory.js"></script>
+<script type="module">
+    import { loadItems } from "./lib/inventory.js";
+
+    // display stored items in a list
+    const myItems = loadItems();
+    const listElement = document.getElementById('item-list');
+    document.getElementById('no-items-placeholder').hidden = myItems.length > 0;
+    document.getElementById('item-list').hidden = myItems.length === 0;
+    for (const item of myItems) {
+        const itemElement = document.getElementById('item-template').content.cloneNode(true);
+        itemElement.querySelector('.item-barcode').innerHTML = item.barcode;
+        itemElement.querySelector('.item-count').innerHTML = `${item.count}x`;
+        listElement.appendChild(itemElement);
+    }
+</script>
 
 </body>
 </html>

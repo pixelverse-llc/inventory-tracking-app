@@ -18,18 +18,15 @@
     <h1 class="uk-h2">Inventory Tracking</h1>
     <div id="logged-in" hidden>
         <p>
-            You are logged in as user: <span id="username"></span>.
-            <button id="log-out" class="uk-margin-left uk-button uk-button-link">Log out</button>
+            You are logged in as user: <span id="username"></span>
         </p>
 
         <div class="uk-flex uk-flex-row uk-flex-between">
-            <a class="uk-button uk-button-primary" href="inventory.html?mode=in">
-                <span uk-icon="icon: arrow-left"></span> Check In
+            <a class="uk-button uk-button-primary" href="inventory.html">
+                Show Inventory
             </a>
 
-            <a class="uk-button uk-button-primary" href="inventory.html?mode=out">
-                <span uk-icon="icon: arrow-right"></span> Check Out
-            </a>
+            <button id="log-out" class="uk-margin-left uk-button uk-button-link">Log out</button>
         </div>
     </div>
     <div id="logged-out" class="uk-flex uk-flex-column" hidden>
@@ -44,7 +41,46 @@
     </div>
 </main>
 
-<script type="module" src="js/index.js"></script>
+<script type="module">
+    import { initializeSDK, PopupScanner } from './lib/scanning.js';
+    import { getUsername, logIn, logOut } from './lib/inventory.js';
+
+    async function updateUI() {
+        const loggedInUsername = getUsername();
+        if (!loggedInUsername) {
+            document.getElementById('logged-out').hidden = false;
+            document.getElementById('logged-in').hidden = true;
+
+            const scanQrButton = document.getElementById('scan-qr-button');
+            try {
+                await initializeSDK();
+                scanQrButton.onclick = async () => {
+                    const qrCodes = await PopupScanner.scan({ symbologies: ['qr' ]});
+                    if (qrCodes) {
+                        logIn(qrCodes[0].data);
+                        await updateUI();
+                    }
+                };
+                scanQrButton.disabled = false;
+            } catch (err) {
+                // see: https://docs.strich.io/reference/classes/SdkError.html
+                alert(`Failed to initialize Barcode Scanning: ${err.message}`);
+            }
+        } else {
+
+            document.getElementById('logged-out').hidden = true;
+            document.getElementById('logged-in').hidden = false;
+
+            document.getElementById('username').innerHTML = loggedInUsername;
+            document.getElementById('log-out').onclick = () => {
+                logOut();
+                updateUI();
+            };
+        }
+    }
+
+    updateUI();
+</script>
 
 </body>
 </html>
