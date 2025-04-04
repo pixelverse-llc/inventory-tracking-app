@@ -17,15 +17,15 @@
 <main class="uk-container uk-height-viewport uk-flex uk-flex-column uk-flex-center uk-flex-middle">
 
     <!-- "Logged in" view -->
-    <div id="logged-in" hidden>
+    <div id="logged-in" class="uk-width-medium uk-flex uk-flex-column" hidden>
 
         <h1 class="uk-h2">My Items</h1>
 
         <!-- show logged-in username -->
-        <p class="uk-text-small uk-text-muted">Logged in as: <span id="username"></span></p>
+        <div class="uk-text-small uk-text-muted">Logged in as: <span id="username"></span></div>
 
         <!-- placeholder to display if no items were scanned yet -->
-        <p id="no-items-placeholder">There are no items in your inventory yet.</p>
+        <div id="no-items-placeholder" class="uk-margin-top">There are no items in your inventory yet.</div>
 
         <!-- the list of items, populated dynamically from the template below -->
         <div id="item-list" class="uk-margin-top uk-margin-bottom" hidden></div>
@@ -38,7 +38,7 @@
             </div>
         </template>
 
-        <div class="uk-flex uk-flex-column uk-flex-between">
+        <div class="uk-flex uk-flex-column uk-flex-between uk-margin-top">
             <a id="return-items" class="uk-button uk-button-primary" href="scan.html?mode=return">
                 <span uk-icon="icon: minus-circle"></span> Return Items
             </a>
@@ -52,10 +52,8 @@
     </div>
 
     <!-- "Logged out" view -->
-    <div id="logged-out" class="uk-flex uk-flex-column" hidden>
-        <h1 class="uk-h2">Log In</h1>
-
-        <p>Scan your badge's QR Code to log in.</p>
+    <div id="logged-out" class="uk-width-medium uk-flex uk-flex-column" hidden>
+        <h1 class="uk-h2">Scan Badge</h1>
 
         <img src="img/badge_qr.webp" width="378" height="209" alt="Badge with QR Code">
 
