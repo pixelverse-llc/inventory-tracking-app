@@ -15,24 +15,49 @@
 <body>
 
 <main class="uk-container uk-height-viewport uk-flex uk-flex-column uk-flex-center uk-flex-middle">
-    <h1 class="uk-h2">Inventory Tracking</h1>
-    <div id="logged-in" hidden>
-        <p>
-            You are logged in as user: <span id="username"></span>
-        </p>
 
-        <div class="uk-flex uk-flex-row uk-flex-between">
-            <a class="uk-button uk-button-primary" href="inventory.html">
-                Show Inventory
+    <!-- "Logged in" view -->
+    <div id="logged-in" hidden>
+
+        <h1 class="uk-h2">My Items</h1>
+
+        <!-- show logged-in username -->
+        <p class="uk-text-small uk-text-muted">Logged in as: <span id="username"></span></p>
+
+        <!-- placeholder to display if no items were scanned yet -->
+        <p id="no-items-placeholder">There are no items in your inventory yet.</p>
+
+        <!-- the list of items, populated dynamically from the template below -->
+        <div id="item-list" class="uk-margin-top uk-margin-bottom" hidden></div>
+
+        <!-- the item template -->
+        <template id="item-template">
+            <div class="uk-flex">
+                <div class="item-barcode uk-width-expand" uk-leader></div>
+                <div class="item-count uk-margin-left"></div>
+            </div>
+        </template>
+
+        <div class="uk-flex uk-flex-column uk-flex-between">
+            <a id="return-items" class="uk-button uk-button-primary" href="scan.html?mode=return">
+                <span uk-icon="icon: minus-circle"></span> Return Items
             </a>
 
-            <button id="log-out" class="uk-margin-left uk-button uk-button-link">Log out</button>
+            <a class="uk-button uk-button-primary uk-margin-top" href="scan.html?mode=borrow">
+                <span uk-icon="icon: plus-circle"></span> Borrow Items
+            </a>
+
+            <button id="log-out" class="uk-button uk-button-default uk-margin-top">Log out</button>
         </div>
     </div>
-    <div id="logged-out" class="uk-flex uk-flex-column" hidden>
-        <p>Log in by scanning the QR Code on your badge.</p>
 
-        <img src="https://placehold.co/480x200" width="480" height="200" alt="Badge with QR Code">
+    <!-- "Logged out" view -->
+    <div id="logged-out" class="uk-flex uk-flex-column" hidden>
+        <h1 class="uk-h2">Log In</h1>
+
+        <p>Scan your badge's QR Code to log in.</p>
+
+        <img src="img/badge_qr.webp" width="378" height="209" alt="Badge with QR Code">
 
         <!-- scan button, enabled when STRICH SDK is initialized -->
         <button id="scan-qr-button" disabled class="uk-margin-top uk-button uk-button-primary">
@@ -42,48 +67,89 @@
 </main>
 
 <script type="module">
-    import { initializeSDK, PopupScanner } from './lib/scanning.js';
-    import { getUsername, logIn, logOut } from './lib/inventory.js';
+    import { StrichSDK, initializeSDK, PopupScanner } from './lib/scanning.js';
+    import { loadItems, clearItems } from './lib/inventory.js';
+    import { getUsername, logIn, logOut } from './lib/authentication.js';
 
-    async function updateUI() {
-        const loggedInUsername = getUsername();
-        if (!loggedInUsername) {
-            document.getElementById('logged-out').hidden = false;
-            document.getElementById('logged-in').hidden = true;
-
-            const scanQrButton = document.getElementById('scan-qr-button');
-            try {
-                await initializeSDK();
-                scanQrButton.onclick = async () => {
-                    const qrCodes = await PopupScanner.scan({
-                        symbologies: ['qr' ],
-                        labels: {
-                            title: 'Scan Badge'
-                        }
-                    });
-                    if (qrCodes) {
-                        logIn(qrCodes[0].data);
-                        await updateUI();
-                    }
-                };
-                scanQrButton.disabled = false;
-            } catch (err) {
-                // see: https://docs.strich.io/reference/classes/SdkError.html
-                alert(`Failed to initialize Barcode Scanning: ${err.message}`);
+    /**
+     * Attempt to scan a QR Code using the PopupScanner.
+     *
+     * See: https://docs.strich.io/the-popup-scanner.html
+     */
+    async function scanQRCode() {
+        const qrCodes = await PopupScanner.scan({
+            symbologies: ['qr' ],
+            labels: {
+                title: 'Scan Badge'
             }
-        } else {
+        });
 
-            document.getElementById('logged-out').hidden = true;
-            document.getElementById('logged-in').hidden = false;
-
-            document.getElementById('username').innerHTML = loggedInUsername;
-            document.getElementById('log-out').onclick = () => {
-                logOut();
-                updateUI();
-            };
+        // if a QR Code was scanned, use its encoded value as the user, and update the UI
+        if (qrCodes) {
+            logIn(qrCodes[0].data);
+            await updateUI();
         }
     }
 
+    /**
+     * Update the UI depending on the current application state (authenticated: yes/no, inventory items)
+     */
+    async function updateUI() {
+        const isLoggedIn = getUsername() !== null;
+
+        // show logged-in or logged-out view depending on authentication state
+        document.getElementById('logged-out').hidden = isLoggedIn;
+        document.getElementById('logged-in').hidden = !isLoggedIn;
+
+        if (isLoggedIn) {
+            // show logged-in user
+            document.getElementById('username').innerHTML = getUsername();
+
+            // display stored items in a list
+            const items = loadItems();
+            const listElement = document.getElementById('item-list');
+            document.getElementById('no-items-placeholder').hidden = items.length > 0;
+            document.getElementById('item-list').hidden = items.length === 0;
+            for (const item of items) {
+                const itemElement = document.getElementById('item-template').content.cloneNode(true);
+                itemElement.querySelector('.item-barcode').innerHTML = item.barcode;
+                itemElement.querySelector('.item-count').innerHTML = `${item.count}x`;
+                listElement.appendChild(itemElement);
+            }
+
+            // if we don't have any items, disable the return items button
+            if (items.length === 0) {
+                document.getElementById('return-items').disabled = true;
+                console.log(`button disabled`);
+            }
+
+            // log out button logs out and clears inventory
+            document.getElementById('log-out').onclick = () => {
+                logOut();
+                clearItems();
+                updateUI();
+            };
+        } else {
+
+            // set up the QR Code login screen, but check if the browser has access to a camera
+            const hasCamera = await StrichSDK.hasCameraDevice();
+            if (hasCamera) {
+                const scanQrButton = document.getElementById('scan-qr-button');
+                try {
+                    await initializeSDK();
+                    scanQrButton.disabled = false;
+                    scanQrButton.onclick = scanQRCode;
+                } catch (err) {
+                    // see: https://docs.strich.io/reference/classes/SdkError.html
+                    alert(`Failed to initialize Barcode Scanning: ${err.message}`);
+                }
+            } else {
+                alert(`Sorry, you need a camera to scan barcodes`);
+            }
+        }
+    }
+
+    // initial UI update
     updateUI();
 </script>
 

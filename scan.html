@@ -22,17 +22,21 @@
 <body>
 
 <main class="uk-container uk-height-viewport uk-flex uk-flex-column uk-flex-center uk-width-large">
-    <div id="check-in" hidden>
-        <h1 class="uk-h2">Check In</h1>
-        <p>Return items by scanning their barcodes and placing them back on the shelf.</p>
-    </div>
-    <div id="check-out" class="uk-flex uk-flex-column" hidden>
-        <h1 class="uk-h2">Check Out</h1>
-        <p>Take items from the shelf and scan their barcode.</p>
+
+    <!-- Return items header -->
+    <div id="return-items" hidden>
+        <h1 class="uk-h2">Return Items</h1>
+        <p>Return items to the inventory by scanning their barcodes.</p>
     </div>
 
+    <!-- Borrow items header -->
+    <div id="borrow-items" class="uk-flex uk-flex-column" hidden>
+        <h1 class="uk-h2">Add Items</h1>
+        <p>Take items from the inventory by scanning their barcode.</p>
+    </div>
+
+    <!-- STRICH BarcodeReader host element -->
     <div id="barcode-reader-host">
-        <!-- STRICH BarcodeReader will live here -->
     </div>
 
     <!-- number of items scanned -->
@@ -40,6 +44,7 @@
         No items scanned yet
     </p>
 
+    <!-- Finish Scanning button -->
     <button id="finish-scanning" class="uk-button uk-button-primary uk-margin-top">
         Finish Scanning
     </button>
@@ -52,6 +57,9 @@
     // list of items to check in or out, objects have a 'barcode' and a 'count' field
     let items = [];
 
+    /**
+     * Add the scanned barcode to a temporary list of scanned items.
+     */
     function onItemScanned(barcode) {
         let existing = items.find(item => item.barcode === barcode);
         if (existing) {
@@ -68,13 +76,13 @@
         document.getElementById('items-scanned').innerHTML = `${totalCount} items scanned`;
     }
 
-    // read mode (in/out) from query parameter
+    // read mode from query parameter and show respective view
     const queryParams = new URLSearchParams(window.location.search);
-    const mode = queryParams.get('mode') ?? 'in';
-    if (mode === 'in') {
-        document.getElementById('check-in').hidden = false;
+    const mode = queryParams.get('mode') ?? 'borrow';
+    if (mode === 'borrow') {
+        document.getElementById('borrow-items').hidden = false;
     } else { // out
-        document.getElementById('check-out').hidden = false;
+        document.getElementById('return-items').hidden = false;
     }
 
     // initialize SDK and enable button when ready
@@ -82,7 +90,7 @@
     try {
         await initializeSDK();
 
-        // BarcodeReader configuration
+        // BarcodeReader configuration, see: https://docs.strich.io/reference/interfaces/Configuration.html
         const hostElement = document.getElementById('barcode-reader-host');
         const config = {
             selector: hostElement,
@@ -110,7 +118,7 @@
         alert(`Failed to initialize Barcode Scanning: ${err.message}`);
     }
 
-    // finish scanning
+    // finish scanning button commits items and navigates back to inventory
     document.getElementById('finish-scanning').onclick = async () => {
 
         // stop and destroy BarcodeReader (releases camera)
@@ -118,17 +126,17 @@
 
         // add scanned items to inventory
         for (const item of items) {
-            if (mode === 'in') {
-                // check in: remove item from local inventory
+            if (mode === 'return') {
+                // return: remove item from local inventory
                 removeItem(item);
             } else {
-                // check out: add item to local inventory
+                // borrow: add item to local inventory
                 addItem(item);
             }
         }
 
-        // navigate back to inventory
-        document.location.href = 'inventory.html';
+        // navigate back to main screen
+        document.location.href = 'index.html';
     }
 </script>
 
