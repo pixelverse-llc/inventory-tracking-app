@@ -1,21 +1,14 @@
-* {
+/* use more intuitive box-sizing model, see: https://css-tricks.com/box-sizing/#aa-universal-box-sizing */
+*, *:before, *:after {
     box-sizing: border-box;
 }
 
+/* remove body margin */
 body {
     margin: 0;
 }
 
-/* centered container */
-main {
-    max-width: 640px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    height: 100dvh;
-    justify-content: center;
-}
-
+/* responsive images */
 .img-responsive {
     max-width: 100%;
     height: auto;
@@ -28,3 +21,12 @@ button {
     margin-top: 10px;
 }
 
+/* centered content container */
+main {
+    max-width: 640px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    justify-content: center;
+}
