@@ -7,60 +7,49 @@
     <!-- mobile viewport -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!--- UIkit CSS framework, loaded from a CDN, see: https://getuikit.com/docs/installation -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.23.4/dist/css/uikit.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/uikit@3.23.4/dist/js/uikit.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/uikit@3.23.4/dist/js/uikit-icons.min.js"></script>
+    <!-- global styles -->
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
-<main class="uk-container uk-height-viewport uk-flex uk-flex-column uk-flex-center uk-flex-middle">
+<main>
 
     <!-- "Logged in" view -->
-    <div id="logged-in" class="uk-width-medium uk-flex uk-flex-column" hidden>
+    <div id="logged-in" hidden>
 
-        <h1 class="uk-h2">My Items</h1>
-
-        <!-- show logged-in username -->
-        <div class="uk-text-small uk-text-muted">Logged in as: <span id="username"></span></div>
+        <h1>My Items</h1>
 
         <!-- placeholder to display if no items were scanned yet -->
-        <div id="no-items-placeholder" class="uk-margin-top">There are no items in your inventory yet.</div>
+        <p id="no-items-placeholder">There are no items in your inventory yet.</p>
 
         <!-- the list of items, populated dynamically from the template below -->
-        <div id="item-list" class="uk-margin-top uk-margin-bottom" hidden></div>
+        <ul id="item-list" hidden></ul>
 
         <!-- the item template -->
         <template id="item-template">
-            <div class="uk-flex">
-                <div class="item-barcode uk-width-expand" uk-leader></div>
-                <div class="item-count uk-margin-left"></div>
-            </div>
+            <li>
+                <span class="item-barcode"></span>
+                – (<span class="item-count"></span>)
+            </li>
         </template>
 
-        <div class="uk-flex uk-flex-column uk-flex-between uk-margin-top">
-            <a id="return-items" class="uk-button uk-button-primary" href="scan.html?mode=return">
-                <span uk-icon="icon: minus-circle"></span> Return Items
-            </a>
+        <button id="borrow-items">Borrow Items</button>
+        <button id="return-items">Return Items</button>
 
-            <a class="uk-button uk-button-primary uk-margin-top" href="scan.html?mode=borrow">
-                <span uk-icon="icon: plus-circle"></span> Borrow Items
-            </a>
+        <!-- show logged-in username -->
+        <p>Logged in as: <span id="username"></span></p>
 
-            <button id="log-out" class="uk-button uk-button-default uk-margin-top">Log out</button>
-        </div>
+        <button id="log-out">Log Out</button>
     </div>
 
     <!-- "Logged out" view -->
-    <div id="logged-out" class="uk-width-medium uk-flex uk-flex-column" hidden>
-        <h1 class="uk-h2">Scan Badge</h1>
+    <div id="logged-out" hidden>
+        <h1>Scan Badge</h1>
 
-        <img src="img/badge_qr.webp" width="378" height="209" alt="Badge with QR Code">
+        <img class="img-responsive" src="img/badge_qr.webp" width="378" height="209" alt="Badge with QR Code">
 
         <!-- scan button, enabled when STRICH SDK is initialized -->
-        <button id="scan-qr-button" disabled class="uk-margin-top uk-button uk-button-primary">
-            Scan QR Code
-        </button>
+        <button id="scan-qr-button" disabled>Scan QR Code</button>
     </div>
 </main>
 
@@ -96,8 +85,8 @@
         const isLoggedIn = getUsername() !== null;
 
         // show logged-in or logged-out view depending on authentication state
-        document.getElementById('logged-out').hidden = isLoggedIn;
-        document.getElementById('logged-in').hidden = !isLoggedIn;
+        document.getElementById('logged-out').style.display = isLoggedIn ? 'none' : 'block';
+        document.getElementById('logged-in').style.display = isLoggedIn ? 'block' : 'none';
 
         if (isLoggedIn) {
             // show logged-in user
@@ -118,7 +107,6 @@
             // if we don't have any items, disable the return items button
             if (items.length === 0) {
                 document.getElementById('return-items').disabled = true;
-                console.log(`button disabled`);
             }
 
             // log out button logs out and clears inventory
@@ -127,6 +115,10 @@
                 clearItems();
                 updateUI();
             };
+
+            // borrow items/return items buttons navigate to scan page
+            document.getElementById('borrow-items').onclick = () => document.location.href = 'scan.html?mode=borrow';
+            document.getElementById('return-items').onclick = () => document.location.href = 'scan.html?mode=return';
         } else {
 
             // set up the QR Code login screen, but check if the browser has access to a camera

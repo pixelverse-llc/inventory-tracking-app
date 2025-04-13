@@ -1,0 +1,29 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+}
+
+/* centered container */
+main {
+    max-width: 640px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    justify-content: center;
+}
+
+.img-responsive {
+    max-width: 100%;
+    height: auto;
+}
+
+/* make buttons wide and touch-friendly */
+button {
+    min-height: 48px;
+    width: 100%;
+}
+

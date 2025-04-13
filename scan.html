@@ -7,11 +7,10 @@
     <!-- mobile viewport -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!--- UIkit CSS framework, loaded from a CDN, see: https://getuikit.com/docs/installation -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.23.4/dist/css/uikit.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/uikit@3.23.4/dist/js/uikit.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/uikit@3.23.4/dist/js/uikit-icons.min.js"></script>
+    <!-- global styles -->
+    <link rel="stylesheet" href="css/styles.css">
 
+    <!-- local styles -->
     <style>
         #barcode-reader-host {
             position: relative;
@@ -21,17 +20,17 @@
 </head>
 <body>
 
-<main class="uk-container uk-height-viewport uk-flex uk-flex-column uk-flex-center uk-width-large">
+<main>
 
     <!-- Return items header -->
     <div id="return-items" hidden>
-        <h1 class="uk-h2">Return Items</h1>
+        <h1>Return Items</h1>
         <p>Return items to the storage by scanning their barcodes.</p>
     </div>
 
     <!-- Borrow items header -->
-    <div id="borrow-items" class="uk-flex uk-flex-column" hidden>
-        <h1 class="uk-h2">Add Items</h1>
+    <div id="borrow-items" hidden>
+        <h1>Add Items</h1>
         <p>Take items from the storage by scanning their barcodes.</p>
     </div>
 
@@ -40,12 +39,10 @@
     </div>
 
     <!-- number of items scanned -->
-    <p id="items-scanned" class="uk-text-center">
-        No items scanned yet
-    </p>
+    <p id="items-scanned">No items scanned yet</p>
 
     <!-- Finish Scanning button -->
-    <button id="finish-scanning" class="uk-button uk-button-primary uk-margin-top">
+    <button id="finish-scanning">
         Finish Scanning
     </button>
 </main>
