@@ -54,7 +54,7 @@
 </main>
 
 <script type="module">
-    import { StrichSDK, initializeSDK, PopupScanner } from './lib/scanning.js';
+    import { StrichSDK, PopupScanner } from 'https://cdn.jsdelivr.net/npm/@pixelverse/strichjs-sdk@1.7.3';
     import { loadItems, clearItems } from './lib/inventory.js';
     import { getUsername, logIn, logOut } from './lib/authentication.js';
 
@@ -126,7 +126,8 @@
             if (hasCamera) {
                 const scanQrButton = document.getElementById('scan-qr-button');
                 try {
-                    await initializeSDK();
+                    const licenseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyMDE5NThkMi1jOGU4LTRhMTUtODM0Ni01MWE1MTY5OTBhMTAiLCJpc3MiOiJzdHJpY2guaW8iLCJhdWQiOlsiaHR0cHM6Ly9waXhlbHZlcnNlLWxsYy5naXRodWIuaW8vaW52ZW50b3J5LXRyYWNraW5nLWFwcC8iXSwiaWF0IjoxNzQzNDMyMjQ2LCJuYmYiOjE3NDM0MzIyNDYsImNhcGFiaWxpdGllcyI6e30sInZlcnNpb24iOjF9.kG8WWatvju1RLlu8aZGVaKjrJU9Kr79RdvQFi6lomiU';
+                    await StrichSDK.initialize(licenseKey);
                     scanQrButton.disabled = false;
                     scanQrButton.onclick = scanQRCode;
                 } catch (err) {

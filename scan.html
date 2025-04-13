@@ -48,7 +48,7 @@
 </main>
 
 <script type="module">
-    import {initializeSDK, BarcodeReader} from './lib/scanning.js';
+    import { StrichSDK, BarcodeReader } from 'https://cdn.jsdelivr.net/npm/@pixelverse/strichjs-sdk@1.7.3';
     import {addItem, removeItem} from './lib/inventory.js';
 
     // list of items to check in or out, objects have a 'barcode' and a 'count' field
@@ -85,7 +85,8 @@
     // initialize SDK and enable button when ready
     let barcodeReader = null;
     try {
-        await initializeSDK();
+        const licenseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyMDE5NThkMi1jOGU4LTRhMTUtODM0Ni01MWE1MTY5OTBhMTAiLCJpc3MiOiJzdHJpY2guaW8iLCJhdWQiOlsiaHR0cHM6Ly9waXhlbHZlcnNlLWxsYy5naXRodWIuaW8vaW52ZW50b3J5LXRyYWNraW5nLWFwcC8iXSwiaWF0IjoxNzQzNDMyMjQ2LCJuYmYiOjE3NDM0MzIyNDYsImNhcGFiaWxpdGllcyI6e30sInZlcnNpb24iOjF9.kG8WWatvju1RLlu8aZGVaKjrJU9Kr79RdvQFi6lomiU';
+        await StrichSDK.initialize(licenseKey);
 
         // BarcodeReader configuration, see: https://docs.strich.io/reference/interfaces/Configuration.html
         const hostElement = document.getElementById('barcode-reader-host');
