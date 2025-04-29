@@ -39,26 +39,26 @@
 </main>
 
 <script type="module">
-    import { StrichSDK, BarcodeReader } from 'https://cdn.jsdelivr.net/npm/@pixelverse/strichjs-sdk@1.7.3';
+    import { StrichSDK, BarcodeReader } from 'https://cdn.jsdelivr.net/npm/@pixelverse/strichjs-sdk@latest';
     import {addItem, removeItem} from './lib/inventory.js';
 
     // list of items to check in or out, objects have a 'barcode' and a 'count' field
-    let items = [];
+    let scannedItems = [];
 
     /**
      * Add the scanned barcode to a temporary list of scanned items.
      */
     function onItemScanned(barcode) {
-        let existing = items.find(item => item.barcode === barcode);
+        let existing = scannedItems.find(item => item.barcode === barcode);
         if (existing) {
             existing.count++;
         } else {
-            items.push({ barcode, count: 1 });
+            scannedItems.push({ barcode, count: 1 });
         }
 
         // update displayed item count
         let totalCount = 0;
-        for (const item of items) {
+        for (const item of scannedItems) {
             totalCount += item.count;
         }
         document.getElementById('items-scanned').innerHTML = `${totalCount} items scanned`;
@@ -114,7 +114,7 @@
         await barcodeReader.destroy();
 
         // add scanned items to inventory
-        for (const item of items) {
+        for (const item of scannedItems) {
             if (mode === 'return') {
                 // return: remove item from local inventory
                 removeItem(item);
