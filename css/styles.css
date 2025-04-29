@@ -14,19 +14,21 @@ body {
     height: auto;
 }
 
-/* make buttons wide and touch-friendly */
+/* make buttons wide, touch-friendly and legible */
 button {
     min-height: 48px;
     width: 100%;
     margin-top: 10px;
+    text-transform: uppercase;
 }
 
 /* centered content container */
 main {
-    max-width: 640px;
+    max-width: 480px;
     padding: 20px;
     display: flex;
     flex-direction: column;
     height: 100dvh;
     justify-content: center;
+    margin: auto;
 }

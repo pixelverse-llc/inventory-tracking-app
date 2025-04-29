@@ -35,11 +35,9 @@
 
         <button id="borrow-items">Borrow Items</button>
         <button id="return-items">Return Items</button>
-
-        <!-- show logged-in username -->
-        <p>Logged in as: <span id="username"></span></p>
-
         <button id="log-out">Log Out</button>
+
+        <p>Logged in as: <span id="username"></span></p>
     </div>
 
     <!-- "Logged out" view -->
@@ -54,7 +52,7 @@
 </main>
 
 <script type="module">
-    import { StrichSDK, PopupScanner } from 'https://cdn.jsdelivr.net/npm/@pixelverse/strichjs-sdk@1.7.3';
+    import { StrichSDK, PopupScanner } from 'https://cdn.jsdelivr.net/npm/@pixelverse/strichjs-sdk@latest';
     import { loadItems, clearItems } from './lib/inventory.js';
     import { getUsername, logIn, logOut } from './lib/authentication.js';
 
@@ -89,13 +87,14 @@
         document.getElementById('logged-in').style.display = isLoggedIn ? 'block' : 'none';
 
         if (isLoggedIn) {
-            // show logged-in user
-            document.getElementById('username').innerHTML = getUsername();
-
-            // display stored items in a list
+             // display stored items in a list
             const items = loadItems();
-            const listElement = document.getElementById('item-list');
+
+            // show placeholder if list is empty
             document.getElementById('no-items-placeholder').hidden = items.length > 0;
+
+            // populate list from item template
+            const listElement = document.getElementById('item-list');
             document.getElementById('item-list').hidden = items.length === 0;
             for (const item of items) {
                 const itemElement = document.getElementById('item-template').content.cloneNode(true);
@@ -109,16 +108,17 @@
                 document.getElementById('return-items').disabled = true;
             }
 
-            // log out button logs out and clears inventory
+            // borrow items/return items buttons navigate to scan page
+            document.getElementById('borrow-items').onclick = () => document.location.href = 'scan.html?mode=borrow';
+            document.getElementById('return-items').onclick = () => document.location.href = 'scan.html?mode=return';
+
+            // show logged-in user and logout button, clears inventory
+            document.getElementById('username').innerHTML = getUsername();
             document.getElementById('log-out').onclick = () => {
                 logOut();
                 clearItems();
                 updateUI();
             };
-
-            // borrow items/return items buttons navigate to scan page
-            document.getElementById('borrow-items').onclick = () => document.location.href = 'scan.html?mode=borrow';
-            document.getElementById('return-items').onclick = () => document.location.href = 'scan.html?mode=return';
         } else {
 
             // set up the QR Code login screen, but check if the browser has access to a camera
